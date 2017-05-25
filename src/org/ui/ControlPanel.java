@@ -16,6 +16,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import org.ui.input.HotkeyListener;
 import org.ui.wrapper.LocalSoundModule;
 import org.ui.wrapper.MicModule;
 import org.ui.wrapper.ReloadModule;
@@ -29,9 +30,14 @@ public class ControlPanel extends JPanel{
 	
 	public static int ROWS = 4, COLUMNS = 5;
 	private static CopyOnWriteArrayList<UIModule> modules = new CopyOnWriteArrayList<UIModule>();
-	private static double volume = 100;
+	private static HotkeyListener hkl;
 	
+	/** Creates and sets up listeners for a new GUI Control Panel */
 	public ControlPanel(){
+		if(hkl==null){
+			hkl = new HotkeyListener(modules);
+			hkl.register();
+		}
 		loadModules();
 	}
 	
@@ -49,21 +55,19 @@ public class ControlPanel extends JPanel{
 		    public void windowClosing(WindowEvent e){
 		    	System.err.println("WINDOW CLOSED!");
 		    	killModules();
+		    	hkl.cleanup();
 		    }
 		});
 		
 		f.addMouseWheelListener(new MouseWheelListener(){
 			public void mouseWheelMoved(MouseWheelEvent e) {
 				int notches = e.getWheelRotation();
-				volume += notches*-1*5;
-				volume = Math.min(120, volume);
-				volume = Math.max(-120, volume);
-				f.setTitle("Soundboard "+VERSION+" - Volume: "+(int)((volume/100d)*100)+"%");
+				
 				for(UIModule m : modules){
 					if(!(m instanceof LocalSoundModule))
 						continue;
 					LocalSoundModule lsm = (LocalSoundModule)m;
-					lsm.setVolume(volume/100d);
+					lsm.setVolume(notches*-1);//Mousewheel ticks are inverted.
 				}
 			}
 		});
@@ -74,6 +78,12 @@ public class ControlPanel extends JPanel{
 				try{
 					while(ControlPanel.this.isValid()){
 						ControlPanel.this.repaint();
+						for(UIModule m : modules){
+							if(m instanceof LocalSoundModule){
+								f.setTitle("Soundboard "+VERSION+" - Volume: "+(int)((((LocalSoundModule) m).getVolume()/100d)*100)+"%");
+								break;
+							}
+						}
 						Thread.sleep(200);
 					}
 					System.out.println("Rendering completed.");
@@ -85,6 +95,7 @@ public class ControlPanel extends JPanel{
 	/** Triggers the kill event on all loaded modules. */
 	private static void killModules(){
 		System.out.println("Terminating all modules.");
+		
     	for(UIModule o : modules){
     		try{
     			o.kill();

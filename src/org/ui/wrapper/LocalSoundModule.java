@@ -25,7 +25,7 @@ public class LocalSoundModule extends UIModule{
 	private Color color = null;
 	private int fontSize = 12, fontStyle = 1, offset=0;
 	private String font = "Arial";
-	private double volume = 1;
+	private int volume = 100;
 	
 	private Thread audioThread = null;
 	private boolean playing = false;
@@ -209,8 +209,14 @@ public class LocalSoundModule extends UIModule{
 		return t;
 	}
 	
-	public void setVolume(double volume){
-		this.volume = volume;
+	public void setVolume(int notches){
+		volume += notches*5;
+		volume = Math.min(120, volume);
+		volume = Math.max(-120, volume);
+	}
+	
+	public int getVolume(){
+		return this.volume;
 	}
 	
 	/**
@@ -222,7 +228,7 @@ public class LocalSoundModule extends UIModule{
 		for(FloatControl c : controls){
 			float min = c.getMinimum() / 4;
 			if (volume != 1) {
-				c.setValue(min * (1 - (float)volume));
+				c.setValue(min * (1 - (float)(volume/100d) ));
 			}else{
 				c.setValue(0);
 			}
