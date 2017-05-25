@@ -6,17 +6,14 @@ import java.util.ArrayList;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
+/** 
+ * Java won't support files which aren't in WAV format, so we offer an automatic built-in conversion using FFmpeg, if available.
+ */
 public class Converter {
 	
-	/** Prompt the user to see if they'd like to convert, if FFMPeg is present. */
+	/** Prompt the user to see if they'd like to convert */
 	private static boolean prompt(){
-		if(!new File("ffmpeg.exe").exists()){
-			System.out.println("No FFmpeg.exe detected; Automatic Sound Filetype conversion disabled.");
-			return false;
-		}
-		
 		ArrayList<File> conversions = getConvertibleFiles();
-		
 		
 		if(conversions.size()==0 || !Settings.prompt("File Conversion Available", "The filetype '.wav' is required in order to be played. Would you like to convert non-matching filetypes using FFMpeg?"))
 			return false;
@@ -38,9 +35,8 @@ public class Converter {
 			System.out.println("Converting "+f.getName());
 			try{
 				String newName = f.getName().substring(0, f.getName().lastIndexOf('.'))+".wav";
-				Process pb = new ProcessBuilder("ffmpeg.exe","-y", "-i","\""+f.getAbsolutePath()+"\"", f.getParentFile().getAbsolutePath()+File.separator+newName).start();
+				Process pb = new ProcessBuilder("ffmpeg","-y", "-i","\""+f.getAbsolutePath()+"\"", f.getParentFile().getAbsolutePath()+File.separator+newName).start();
 				pb.waitFor();
-				f.delete();
 			}catch(Exception e){
 				e.printStackTrace();
 			}

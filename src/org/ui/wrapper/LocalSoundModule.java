@@ -30,7 +30,7 @@ public class LocalSoundModule extends UIModule{
 	private Thread audioThread = null;
 	private boolean playing = false;
 	
-	/** Loads and parses this sound file using the fomratted file name.<br> 
+	/** Loads and parses this sound file using the formatted file name.<br> 
 	 * Syntax for naming:<br>
 	 * FILENAME.#color.fontsize.fontstyle.fontname.ext*/
 	public LocalSoundModule(File file) throws Exception{
