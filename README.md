@@ -9,4 +9,4 @@ For Windows, I suggest this one: http://vbaudio.jcedeveloppement.com/Download_CA
 
 Simply set the Virtual Cable as your default microphone, and when prompted by the App select the Virtual Speakers created. (CABLE Input) with the above driver.
 
-This program is built to work on multiple systems, but support for Windows 7+ is only tested. Differing audio systems on alternate systems are subject to breaking any of the audio processing.
+This program is built to work on multiple systems, but only support for Windows 7+ is tested. Differing audio systems on alternate systems are subject to breaking any of the audio processing.
