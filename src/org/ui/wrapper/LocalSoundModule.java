@@ -6,11 +6,14 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.Mixer;
 import javax.sound.sampled.SourceDataLine;
 
@@ -22,9 +25,10 @@ public class LocalSoundModule extends UIModule{
 	private Color color = null;
 	private int fontSize = 12, fontStyle = 1, offset=0;
 	private String font = "Arial";
+	private double volume = 1;
 	
 	private Thread audioThread = null;
-	private boolean play = false;
+	private boolean playing = false;
 	
 	/** Loads and parses this sound file using the fomratted file name.<br> 
 	 * Syntax for naming:<br>
@@ -63,7 +67,7 @@ public class LocalSoundModule extends UIModule{
 		}
 		try{
 			System.out.println("Playing '"+file+"'.");
-			this.play = true;
+			this.playing = true;
 			
 			String outputLineName = null;
 			if((outputLineName=Settings.getSetting("SpeakerOutputLine"))==null){
@@ -79,12 +83,12 @@ public class LocalSoundModule extends UIModule{
 	}
 	
 	public boolean isPlaying(){
-		return this.audioThread!=null && this.audioThread.isAlive() && this.play;
+		return this.audioThread!=null && this.audioThread.isAlive() && this.playing;
 	}
 	
 	/** Terminates the playing sound, if it is playing. */
 	public void stopPlaying(){
-		this.play = false;
+		this.playing = false;
 	}
 	
 	//override.
@@ -160,13 +164,32 @@ public class LocalSoundModule extends UIModule{
 					sourceDataLine.open(format);
 					sourceDataLine.start();
 					
+					List<FloatControl> volumes = new ArrayList<FloatControl>();
+					if (sourceDataLine.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
+						System.out.println("Setting volume on out...");
+						FloatControl volume = (FloatControl) sourceDataLine.getControl(FloatControl.Type.MASTER_GAIN);
+						volumes.add(volume);
+					}else{
+						System.err.println("Unable to hook output volume control!");
+					}
+					
 					primeDataLine.open(format);
 					primeDataLine.start();
-					
+
+					if (primeDataLine.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
+						System.out.println("Setting volume on Prime...");
+						FloatControl volume = (FloatControl) primeDataLine.getControl(FloatControl.Type.MASTER_GAIN);
+						volumes.add(volume);
+					}else{
+						System.err.println("Unable to hook client-side output volume control.");
+					}
+
 					AudioInputStream audioStream =  AudioSystem.getAudioInputStream(format, AudioSystem.getAudioInputStream(file));//We open the file here, and convert to the required format.
+					
 					int r=0;
 					byte[] buff = new byte[1024];
-					while((r=audioStream.read(buff))!=-1 && LocalSoundModule.this.play){
+					while((r=audioStream.read(buff))!=-1 && LocalSoundModule.this.playing){
+						scaleVolumes(volumes, volume);
 						sourceDataLine.write(buff, 0, r);//We're taking one input stream and copying it over to both the outgoing and the local speaker lines.
 						primeDataLine.write(buff, 0, r);
 					}
@@ -177,13 +200,33 @@ public class LocalSoundModule extends UIModule{
 					primeDataLine.drain();
 					primeDataLine.close();
 					audioStream.close();
-					LocalSoundModule.this.play = false;
+					LocalSoundModule.this.playing = false;
 				}catch(Exception e){
 					e.printStackTrace();
 				}
 			}
 		};
 		return t;
+	}
+	
+	public void setVolume(double volume){
+		this.volume = volume;
+	}
+	
+	/**
+	 * Adjust all the supplied controls to (roughly) the desired volume, scaling based off original clip volume.
+	 * @param controls - The audio lone FloatControls to adjust.
+	 * @param volume - 0-1, the % the clips should play at.
+	 */
+	private static final void scaleVolumes(List<FloatControl> controls, double volume){
+		for(FloatControl c : controls){
+			float min = c.getMinimum() / 4;
+			if (volume != 1) {
+				c.setValue(min * (1 - (float)volume));
+			}else{
+				c.setValue(0);
+			}
+		}
 	}
 
 }

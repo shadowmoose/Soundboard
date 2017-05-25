@@ -36,7 +36,7 @@ public class MicStreamer {
 		return streaming;
 	}
 	
-	private static void pipeMicFeed() {//http://vbaudio.jcedeveloppement.com/Download_CABLE/VBCABLE_Driver_Pack43.zip -- CABLE driver for virtual audio card
+	private static void pipeMicFeed() {
 		AudioFormat format = new AudioFormat(96000.0f, 16, 1, true, true);
 		//System.out.println(format);
 		TargetDataLine microphone;

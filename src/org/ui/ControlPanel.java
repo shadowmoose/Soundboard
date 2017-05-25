@@ -5,6 +5,8 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
@@ -23,8 +25,11 @@ import org.util.Settings;
 
 @SuppressWarnings("serial")
 public class ControlPanel extends JPanel{
+	public static final double VERSION = 2.0;
+	
 	public static int ROWS = 4, COLUMNS = 5;
 	private static CopyOnWriteArrayList<UIModule> modules = new CopyOnWriteArrayList<UIModule>();
+	private static double volume = 100;
 	
 	public ControlPanel(){
 		loadModules();
@@ -32,7 +37,7 @@ public class ControlPanel extends JPanel{
 	
 	/** Display everything. */
 	public void create(){
-		JFrame f = new JFrame("SoundBoard 1.5");
+		final JFrame f = new JFrame("Soundboard "+VERSION);
 		f.setSize(500, 500);
 		
 		f.add(this);
@@ -45,6 +50,22 @@ public class ControlPanel extends JPanel{
 		    	System.err.println("WINDOW CLOSED!");
 		    	killModules();
 		    }
+		});
+		
+		f.addMouseWheelListener(new MouseWheelListener(){
+			public void mouseWheelMoved(MouseWheelEvent e) {
+				int notches = e.getWheelRotation();
+				volume += notches*-1*5;
+				volume = Math.min(120, volume);
+				volume = Math.max(-120, volume);
+				f.setTitle("Soundboard "+VERSION+" - Volume: "+(int)((volume/100d)*100)+"%");
+				for(UIModule m : modules){
+					if(!(m instanceof LocalSoundModule))
+						continue;
+					LocalSoundModule lsm = (LocalSoundModule)m;
+					lsm.setVolume(volume/100d);
+				}
+			}
 		});
 		this.addMouseListener(createMouseListener());
 		
@@ -115,10 +136,7 @@ public class ControlPanel extends JPanel{
 						modules.add(new LocalSoundModule(child));
 					else{
 						//modules.add(new SoundModule(child));
-					}
-					if(modules.size()>ROWS*COLUMNS){
-						System.err.println("Too many modules loaded! Skipping the rest!");
-						return;
+						//Support for non-wavs not yet implemented.
 					}
 				}catch(Exception e){
 					e.printStackTrace();
@@ -126,7 +144,10 @@ public class ControlPanel extends JPanel{
 				}
 			}
 		}
-		System.out.println("Modules loaded: "+modules.size());
+		ROWS = (int) Math.floor(Math.sqrt(modules.size()));
+		COLUMNS = (int) Math.ceil((double)modules.size()/(double)ROWS);
+		System.out.println("Rows: "+ROWS+", Col: "+COLUMNS);
+		System.out.println("Modules loaded: "+modules.size()+" :: "+(modules.size()/ROWS));
 	}
 
 	public void paint(Graphics gg){
@@ -136,7 +157,7 @@ public class ControlPanel extends JPanel{
 		g.setColor(Color.gray);
 		g.fillRect(0, 0, width, height);
 		
-		int sw=width/ROWS, sh = height/COLUMNS;
+		int sw=width/ROWS, sh = (int)Math.ceil((double)height/(double)COLUMNS);
 		
 		for(int i=0; i<modules.size(); i++){
 			int bx = (i%ROWS)*(sw);
@@ -153,7 +174,7 @@ public class ControlPanel extends JPanel{
 	
 	/** Render a grid. **/
 	private void grid(Graphics2D g, int width, int height){
-		int wPer = width/ROWS, hPer = height/COLUMNS;
+		int wPer = width/ROWS, hPer = (int)Math.ceil((double)height/(double)COLUMNS);
 		g.setColor(Color.BLACK);
 		
 		for(int x=0; x<=ROWS; x++){

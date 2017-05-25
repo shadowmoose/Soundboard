@@ -8,6 +8,7 @@ import org.util.Converter;
 import org.util.Settings;
 
 public class SoundBoard {
+	//http://vbaudio.jcedeveloppement.com/Download_CABLE/VBCABLE_Driver_Pack43.zip -- CABLE driver for virtual audio card
 	public static void main(String[] args){
 		checkOutput();
 		Converter.checkSounds();
