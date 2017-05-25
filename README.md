@@ -4,6 +4,8 @@ Basic, lightweight Java soundboard implementation.
 Builds a visual Soundboard of all files listed in the subdirectory ./Sounds, which can be customized via the INI generated on launch.
 Uses FFMpeg (in local directory) to convert any files located within the sounds directory to .wav format, which is required by Java for playback.
 
+[[https://github.com/shadowmoose/Soundboard/blob/master/Preview.exe|alt=Preview]]
+
 This Soundboard requires a Virtual Audio Cable interface, which you must install.
 For Windows, I suggest this one: http://vbaudio.jcedeveloppement.com/Download_CABLE/VBCABLE_Driver_Pack43.zip
 

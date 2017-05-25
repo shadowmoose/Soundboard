@@ -24,9 +24,9 @@ import org.ui.wrapper.UIModule;
 import org.util.Converter;
 import org.util.Settings;
 
-@SuppressWarnings("serial")
 public class ControlPanel extends JPanel{
-	public static final double VERSION = 2.0;
+	private static final long serialVersionUID = -1405633901274153343L;
+	public static final double VERSION = 2.1;
 	
 	public static int ROWS = 4, COLUMNS = 5;
 	private static CopyOnWriteArrayList<UIModule> modules = new CopyOnWriteArrayList<UIModule>();
@@ -78,12 +78,14 @@ public class ControlPanel extends JPanel{
 				try{
 					while(ControlPanel.this.isValid()){
 						ControlPanel.this.repaint();
+						
 						for(UIModule m : modules){
 							if(m instanceof LocalSoundModule){
 								f.setTitle("Soundboard "+VERSION+" - Volume: "+(int)((((LocalSoundModule) m).getVolume()/100d)*100)+"%");
 								break;
 							}
 						}
+						
 						Thread.sleep(200);
 					}
 					System.out.println("Rendering completed.");
