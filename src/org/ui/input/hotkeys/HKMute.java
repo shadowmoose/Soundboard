@@ -2,9 +2,8 @@ package org.ui.input.hotkeys;
 
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.ui.input.Hotkey;
-import org.ui.wrapper.MicModule;
-import org.ui.wrapper.UIModule;
+import org.ui.modules.MicModule;
+import org.ui.modules.UIModule;
 
 public class HKMute extends Hotkey{
 
@@ -15,7 +14,7 @@ public class HKMute extends Hotkey{
 
 	@Override
 	public String name() {
-		return "Mute";
+		return "Mic_Mute";
 	}
 
 	@Override

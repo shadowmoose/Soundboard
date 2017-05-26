@@ -2,9 +2,8 @@ package org.ui.input.hotkeys;
 
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.ui.input.Hotkey;
-import org.ui.wrapper.LocalSoundModule;
-import org.ui.wrapper.UIModule;
+import org.ui.modules.LocalSoundModule;
+import org.ui.modules.UIModule;
 
 public class HKVolDown extends Hotkey{
 
@@ -24,7 +23,7 @@ public class HKVolDown extends Hotkey{
 			if(!(m instanceof LocalSoundModule))
 				continue;
 			LocalSoundModule lsm = (LocalSoundModule)m;
-			lsm.setVolume(-1);
+			lsm.setVolume(-10);
 		}
 	}
 

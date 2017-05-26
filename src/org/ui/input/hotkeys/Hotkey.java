@@ -1,8 +1,8 @@
-package org.ui.input;
+package org.ui.input.hotkeys;
 
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.ui.wrapper.UIModule;
+import org.ui.modules.UIModule;
 
 public abstract class Hotkey {
 	/** The keys required (combod, if more than one) to activate this Hotkey's trigger function. */

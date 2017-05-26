@@ -14,6 +14,7 @@ public class SoundBoard {
 	//TODO: Build a launcher/classloader to release along-side this main Jar, to enable automatic update downloading.
 	public static void main(String[] args){
 		checkOutput();
+		
 		Converter.checkSounds();
 		
 		ControlPanel ctrl = new ControlPanel();

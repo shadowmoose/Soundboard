@@ -1,4 +1,4 @@
-package org.ui.wrapper;
+package org.ui.modules;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -210,7 +210,7 @@ public class LocalSoundModule extends UIModule{
 	}
 	
 	public void setVolume(int notches){
-		volume += notches*5;
+		volume += notches;
 		volume = Math.min(120, volume);
 		volume = Math.max(-120, volume);
 	}

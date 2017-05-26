@@ -17,20 +17,20 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import org.ui.input.HotkeyListener;
-import org.ui.wrapper.LocalSoundModule;
-import org.ui.wrapper.MicModule;
-import org.ui.wrapper.ReloadModule;
-import org.ui.wrapper.UIModule;
+import org.ui.modules.LocalSoundModule;
+import org.ui.modules.MicModule;
+import org.ui.modules.UIModule;
 import org.util.Converter;
+import org.util.DirectoryWatcher;
 import org.util.Settings;
 
 public class ControlPanel extends JPanel{
 	private static final long serialVersionUID = -1405633901274153343L;
 	public static final double VERSION = 2.1;
 	
-	public static int ROWS = 4, COLUMNS = 5;
-	private static CopyOnWriteArrayList<UIModule> modules = new CopyOnWriteArrayList<UIModule>();
-	private static HotkeyListener hkl;
+	private int ROWS = 4, COLUMNS = 5;
+	private CopyOnWriteArrayList<UIModule> modules = new CopyOnWriteArrayList<UIModule>();
+	private HotkeyListener hkl;
 	
 	/** Creates and sets up listeners for a new GUI Control Panel */
 	public ControlPanel(){
@@ -62,18 +62,18 @@ public class ControlPanel extends JPanel{
 		f.addMouseWheelListener(new MouseWheelListener(){
 			public void mouseWheelMoved(MouseWheelEvent e) {
 				int notches = e.getWheelRotation();
-				
 				for(UIModule m : modules){
 					if(!(m instanceof LocalSoundModule))
 						continue;
 					LocalSoundModule lsm = (LocalSoundModule)m;
-					lsm.setVolume(notches*-1);//Mousewheel ticks are inverted.
+					
+					lsm.setVolume((int) (5*Math.signum(notches)*-1) );//Mousewheel ticks are inverted.
 				}
 			}
 		});
 		this.addMouseListener(createMouseListener());
 		
-		new Thread(){
+		new Thread("Repainter"){
 			public void run(){
 				try{
 					while(ControlPanel.this.isValid()){
@@ -81,6 +81,7 @@ public class ControlPanel extends JPanel{
 						
 						for(UIModule m : modules){
 							if(m instanceof LocalSoundModule){
+								//Should probably find a better way to update the title.
 								f.setTitle("Soundboard "+VERSION+" - Volume: "+(int)((((LocalSoundModule) m).getVolume()/100d)*100)+"%");
 								break;
 							}
@@ -92,10 +93,19 @@ public class ControlPanel extends JPanel{
 				}catch(Exception e){}
 			}
 		}.start();
+		
+		// Refresh whenever we detect a file change.
+		new DirectoryWatcher( new File(Settings.getSetting("SOUND_DIR")) ){
+			public void handle(File f){
+				if(!f.getName().endsWith(".wav"))
+					Converter.checkSounds();
+				loadModules();
+			}
+		};
 	}
 	
 	/** Triggers the kill event on all loaded modules. */
-	private static void killModules(){
+	private void killModules(){
 		System.out.println("Terminating all modules.");
 		
     	for(UIModule o : modules){
@@ -128,13 +138,10 @@ public class ControlPanel extends JPanel{
 	}
 	
 	/** Populate SoundOption list with all available files. */
-	public static void loadModules(){
+	public void loadModules(){
 		killModules();
 		modules.clear();
 		modules.add(new MicModule());
-		modules.add(new ReloadModule());
-
-		Converter.checkSounds();
 		
 		File dir = new File(Settings.getSetting("SOUND_DIR"));
 		if(!dir.exists()){
@@ -159,8 +166,7 @@ public class ControlPanel extends JPanel{
 		}
 		ROWS = (int) Math.floor(Math.sqrt(modules.size()));
 		COLUMNS = (int) Math.ceil((double)modules.size()/(double)ROWS);
-		System.out.println("Rows: "+ROWS+", Col: "+COLUMNS);
-		System.out.println("Modules loaded: "+modules.size()+" :: "+(modules.size()/ROWS));
+		System.out.println("Modules loaded: "+modules.size());
 	}
 
 	public void paint(Graphics gg){
@@ -170,7 +176,7 @@ public class ControlPanel extends JPanel{
 		g.setColor(Color.gray);
 		g.fillRect(0, 0, width, height);
 		
-		int sw=width/ROWS, sh = (int)Math.ceil((double)height/(double)COLUMNS);
+		int sw=(int)Math.ceil((double)width/(double)ROWS), sh = (int)Math.ceil((double)height/(double)COLUMNS);
 		
 		for(int i=0; i<modules.size(); i++){
 			int bx = (i%ROWS)*(sw);
@@ -187,7 +193,7 @@ public class ControlPanel extends JPanel{
 	
 	/** Render a grid. **/
 	private void grid(Graphics2D g, int width, int height){
-		int wPer = width/ROWS, hPer = (int)Math.ceil((double)height/(double)COLUMNS);
+		int wPer = (int)Math.ceil((double)width/(double)ROWS), hPer = (int)Math.ceil((double)height/(double)COLUMNS);
 		g.setColor(Color.BLACK);
 		
 		for(int x=0; x<=ROWS; x++){

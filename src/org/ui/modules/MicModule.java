@@ -1,4 +1,4 @@
-package org.ui.wrapper;
+package org.ui.modules;
 
 import java.awt.Color;
 import java.awt.Graphics2D;

@@ -11,7 +11,8 @@ import org.jnativehook.keyboard.NativeKeyListener;
 import org.ui.input.hotkeys.HKMute;
 import org.ui.input.hotkeys.HKVolDown;
 import org.ui.input.hotkeys.HKVolUp;
-import org.ui.wrapper.UIModule;
+import org.ui.input.hotkeys.Hotkey;
+import org.ui.modules.UIModule;
 import org.util.Settings;
 
 /** Handles listening for hotkey presses. */
@@ -26,11 +27,15 @@ public class HotkeyListener implements NativeKeyListener{
 	
 	public HotkeyListener(CopyOnWriteArrayList<UIModule> modules) {
 		this.modules = modules;
+		for(Hotkey h : hotkeys){
+			if(Settings.getSetting(h.name()+"_hotkey")==null){
+				Settings.addSetting(h.name()+"_hotkey", h.keyString());
+			}
+		}
 	}
 
 	public void nativeKeyPressed(NativeKeyEvent e) {
 		String code = NativeKeyEvent.getKeyText(e.getKeyCode()).toLowerCase();
-		System.out.println("Key Pressed: " + code);
 		pressed.addIfAbsent(code);
 		
 		for(Hotkey h : hotkeys){

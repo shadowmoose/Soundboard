@@ -37,6 +37,9 @@ public class Converter {
 				String newName = f.getName().substring(0, f.getName().lastIndexOf('.'))+".wav";
 				Process pb = new ProcessBuilder("ffmpeg","-y", "-i","\""+f.getAbsolutePath()+"\"", f.getParentFile().getAbsolutePath()+File.separator+newName).start();
 				pb.waitFor();
+				System.out.println("Exit: "+pb.exitValue());
+				if(pb.exitValue()==0)
+					f.delete();
 			}catch(Exception e){
 				e.printStackTrace();
 			}
