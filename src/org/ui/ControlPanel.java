@@ -97,8 +97,6 @@ public class ControlPanel extends JPanel{
 		// Refresh whenever we detect a file change.
 		new DirectoryWatcher( new File(Settings.getSetting("SOUND_DIR")) ){
 			public void handle(File f, Event e){
-				if(e==Event.DELETE)
-					return;
 				if(!f.getName().endsWith(".wav"))
 					Converter.checkSounds();
 				loadModules();
