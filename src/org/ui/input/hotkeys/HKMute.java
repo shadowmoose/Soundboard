@@ -9,7 +9,7 @@ public class HKMute extends Hotkey{
 
 	@Override
 	public String[] keys() {
-		return new String[]{"ctrl", "m"};
+		return new String[]{"hold", "ctrl", "m"};
 	}
 
 	@Override
