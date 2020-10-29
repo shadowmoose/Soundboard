@@ -7,7 +7,7 @@ Uses FFMpeg (in local directory) to convert any files located within the sounds 
 ![Preview Image](https://github.com/shadowmoose/Soundboard/blob/master/Preview.png)
 
 This Soundboard requires a Virtual Audio Cable interface, which you must install.
-For Windows, I suggest this one: http://vbaudio.jcedeveloppement.com/Download_CABLE/VBCABLE_Driver_Pack43.zip
+For Windows, I suggest this one: https://vb-audio.com/Cable/
 
 Simply set the Virtual Cable as your default microphone, and when prompted by the App select the Virtual Speakers created (listed as "CABLE Input" with the above driver).
 
